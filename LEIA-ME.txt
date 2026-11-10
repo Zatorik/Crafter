@@ -1,0 +1,22 @@
+CRAFTTUDO 2.0 - PAPER 26.3
+
+COMO GERAR O JAR PELO CELULAR
+1. Abra github.com e entre na sua conta.
+2. Toque no + e escolha New repository.
+3. Nome: CraftTudo. Marque Public ou Private e crie o repositório.
+4. Extraia este ZIP no celular.
+5. Envie TODOS os arquivos e pastas que estão dentro da pasta CraftTudo-2.0 para a raiz do repositório. É importante enviar também a pasta oculta .github/workflows.
+   Se o site móvel não permitir enviar pastas, use o GitHub em modo "Site para computador" no navegador.
+6. Abra a aba Actions do repositório. Se aparecer uma confirmação para habilitar workflows, confirme.
+7. O workflow "Build CraftTudo" será iniciado após o envio. Abra a execução mais recente e espere ficar verde (Success).
+8. No fim da página da execução, em Artifacts, baixe CraftTudo-Paper-26.3-v2.0.0. Extraia o ZIP do artifact para obter o .jar.
+9. Coloque o JAR na pasta plugins do servidor e reinicie.
+
+COMANDO: /crafttudo (aliases /craftall e /craftmax)
+PERMISSÃO: crafttudo.use (default true)
+
+OBSERVAÇÕES
+- O menu usa inventário padrão do Minecraft, pensado para clique/toque em Java e Bedrock via Geyser.
+- A fabricação simula cada operação antes de gravar o inventário, verifica espaço e limita a 4096 operações por clique.
+- O plugin contempla retornos comuns de baldes, garrafas de mel e tigelas.
+- Este pacote ainda precisa passar pela compilação do GitHub Actions antes de ser instalado. Se o workflow falhar, envie o texto do erro da execução para corrigirmos.
