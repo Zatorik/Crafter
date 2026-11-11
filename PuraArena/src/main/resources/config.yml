@@ -1,13 +1,12 @@
-# Mundo separado: arenas ampliadas, abertas ao ceu e reutilizadas entre partidas.
-# Build de verificacao solicitado em 2026-11-11.
+# Mundo separado e plano: arenas flutuantes, longe do mundo survival e sem cavernas.
 arena:
-  world: puraarena
-  pool-size: 4
+  world: puraarena_world
+  pool-size: 6
   spacing: 64
   center-x: 0
   center-z: 0
-  base-y: 80
-  generated-layout-version: 2
+  base-y: 160
+  generated-layout-version: 5
   generated: false
 
 invitation-timeout-seconds: 60
