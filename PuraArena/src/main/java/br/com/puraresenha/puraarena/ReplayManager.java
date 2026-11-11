@@ -43,8 +43,9 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
         record.b = b.getUniqueId();
         record.nameA = a.getName();
         record.nameB = b.getName();
-        record.baseA = a.getLocation().clone();
-        record.baseB = b.getLocation().clone();
+        Location startA = a.getLocation(), startB = b.getLocation();
+        record.baseAx = startA.getX(); record.baseAy = startA.getY(); record.baseAz = startA.getZ();
+        record.baseBx = startB.getX(); record.baseBy = startB.getY(); record.baseBz = startB.getZ();
         record.frames = new ArrayList<>();
         Recording recording = new Recording(record);
         recordings.put(a.getUniqueId(), recording);
@@ -72,13 +73,13 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
         }
         ReplayFrame frame = new ReplayFrame();
         Location la = a.getLocation(), lb = b.getLocation();
-        frame.ax = la.getX() - recording.record.baseA.getX();
-        frame.ay = la.getY() - recording.record.baseA.getY();
-        frame.az = la.getZ() - recording.record.baseA.getZ();
+        frame.ax = la.getX() - recording.record.baseAx;
+        frame.ay = la.getY() - recording.record.baseAy;
+        frame.az = la.getZ() - recording.record.baseAz;
         frame.ayaw = la.getYaw(); frame.apitch = la.getPitch(); frame.ahp = a.getHealth();
-        frame.bx = lb.getX() - recording.record.baseB.getX();
-        frame.by = lb.getY() - recording.record.baseB.getY();
-        frame.bz = lb.getZ() - recording.record.baseB.getZ();
+        frame.bx = lb.getX() - recording.record.baseBx;
+        frame.by = lb.getY() - recording.record.baseBy;
+        frame.bz = lb.getZ() - recording.record.baseBz;
         frame.byaw = lb.getYaw(); frame.bpitch = lb.getPitch(); frame.bhp = b.getHealth();
         if (recording.record.frames.size() % 10 == 0) {
             frame.aarmor = cloneItems(a.getInventory().getArmorContents());
@@ -371,7 +372,8 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
             mode = player.getGameMode();
             contents = cloneItems(player.getInventory().getStorageContents());
             armor = cloneItems(player.getInventory().getArmorContents());
-            off = player.getInventory().getItemInOffHand().clone();
+            ItemStack heldOff = player.getInventory().getItemInOffHand();
+            off = heldOff == null ? null : heldOff.clone();
             health = player.getHealth();
             food = player.getFoodLevel(); saturation = player.getSaturation();
             level = player.getLevel(); exp = player.getExp(); fire = player.getFireTicks();
@@ -401,7 +403,7 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
         String id, nameA, nameB;
         long started;
         UUID a, b;
-        Location baseA, baseB;
+        double baseAx, baseAy, baseAz, baseBx, baseBy, baseBz;
         ArrayList<ReplayFrame> frames;
     }
 
