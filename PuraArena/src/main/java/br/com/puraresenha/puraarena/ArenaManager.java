@@ -13,7 +13,7 @@ import java.io.File;
 public final class ArenaManager {
     private static final int HALF_SIZE = 22;
     private static final int WALL_HEIGHT = 128;
-    private static final int LAYOUT_VERSION = 3;
+    private static final int LAYOUT_VERSION = 4;
     private final JavaPlugin plugin;
     private final List<Arena> arenas = new ArrayList<>();
 
@@ -91,7 +91,7 @@ public final class ArenaManager {
                 world.getBlockAt(x, baseY, z).setType(Material.POLISHED_DEEPSLATE, false);
                 boolean edge = x == minX || x == maxX || z == minZ || z == maxZ;
                 if (edge) {
-                    for (int y = baseY + 1; y <= baseY + WALL_HEIGHT; y++) world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
+                    for (int y = baseY + 1; y < world.getMaxHeight(); y++) world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
                 } else {
                     for (int y = baseY + 1; y <= baseY + 12; y++) world.getBlockAt(x, y, z).setType(Material.AIR, false);
                 }
