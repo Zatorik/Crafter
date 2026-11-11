@@ -4,6 +4,11 @@ on:
     paths: ['PuraArena/**', '.github/workflows/puraarena.yml']
     branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: puraarena-build
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
