@@ -22,6 +22,18 @@ public final class ArenaManager {
     }
 
     public void prepare() {
+        String configuredWorld = plugin.getConfig().getString("arena.world", "puraarena_world");
+        if (configuredWorld == null || configuredWorld.equalsIgnoreCase("puraarena")) {
+            plugin.getConfig().set("arena.world", "puraarena_world");
+            plugin.getConfig().set("arena.pool-size", 6);
+            plugin.getConfig().set("arena.base-y", 160);
+            plugin.getConfig().set("arena.generated", false);
+            plugin.saveConfig();
+        }
+        if (plugin.getConfig().getInt("arena.pool-size", 6) < 6) {
+            plugin.getConfig().set("arena.pool-size", 6);
+            plugin.saveConfig();
+        }
         String worldName = plugin.getConfig().getString("arena.world", "puraarena_world");
         World world = Bukkit.getWorld(worldName);
         boolean worldFolderExists = new File(Bukkit.getWorldContainer(), worldName).isDirectory();
@@ -37,7 +49,7 @@ public final class ArenaManager {
             return;
         }
 
-        int count = Math.max(1, Math.min(12, plugin.getConfig().getInt("arena.pool-size", 6)));
+        int count = Math.max(6, Math.min(12, plugin.getConfig().getInt("arena.pool-size", 6)));
         int spacing = Math.max(56, plugin.getConfig().getInt("arena.spacing", 64));
         int baseY = Math.max(world.getMinHeight() + 5,
                 Math.min(world.getMaxHeight() - ARENA_HEIGHT - 5, plugin.getConfig().getInt("arena.base-y", 160)));
