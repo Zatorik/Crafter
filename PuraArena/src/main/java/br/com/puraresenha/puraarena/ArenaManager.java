@@ -96,7 +96,7 @@ public final class ArenaManager {
             }
         }
         for (int[] marker : new int[][]{{centerX - 6,centerZ},{centerX + 6,centerZ}}) {
-            world.getBlockAt(marker[0], baseY + 1, marker[1]).setType(Material.SEA_LANTERN, false);
+            world.getBlockAt(marker[0], baseY, marker[1]).setType(Material.SEA_LANTERN, false);
         }
     }
 
