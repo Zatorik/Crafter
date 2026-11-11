@@ -1,5 +1,7 @@
 name: Build PuraArena
 on:
+  pull_request:
+    paths: ['PuraArena/**', '.github/workflows/puraarena.yml']
   push:
     paths: ['PuraArena/**', '.github/workflows/puraarena.yml']
     branches: [main]
