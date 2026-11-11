@@ -17,7 +17,7 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
  private void decline(Player p){UUID id=invites.remove(p.getUniqueId());timer(p);if(id==null){p.sendMessage("§cSem convite.");return;}Player a=Bukkit.getPlayer(id);if(a!=null)a.sendMessage("§c"+p.getName()+" recusou.");p.sendMessage("§7Convite recusado.");}
  private void cancel(Player p){UUID target=null;for(var e:invites.entrySet())if(e.getValue().equals(p.getUniqueId())){target=e.getKey();break;}if(target==null){p.sendMessage("§cNenhum convite enviado.");return;}invites.remove(target);timer(Bukkit.getPlayer(target));Player t=Bukkit.getPlayer(target);if(t!=null)t.sendMessage("§cConvite cancelado pelo desafiante.");p.sendMessage("§aConvite cancelado.");}
  private void timer(Player p){if(p==null)return;BukkitTask t=timers.remove(p.getUniqueId());if(t!=null)t.cancel();}
- private boolean start(Player a,Player b){if(!ready()||saved.containsKey(a.getUniqueId())||saved.containsKey(b.getUniqueId()))return false;ArenaManager.Arena arena=arenaManager.acquire();if(arena==null){a.sendMessage("§eTodas as arenas estao ocupadas.");b.sendMessage("§eTodas as arenas estao ocupadas.");return false;}queue.remove(a.getUniqueId());queue.remove(b.getUniqueId());activeArenas.put(a.getUniqueId(),arena);activeArenas.put(b.getUniqueId(),arena);saved.put(a.getUniqueId(),State.take(a));saved.put(b.getUniqueId(),State.take(b));persist();fights.put(a.getUniqueId(),b.getUniqueId());fights.put(b.getUniqueId(),a.getUniqueId());prepare(a,arena.spawnOne());prepare(b,arena.spawnTwo());give(a,kits.getOrDefault(a.getUniqueId(),"Classico"));give(b,kits.getOrDefault(b.getUniqueId(),"Classico"));a.sendMessage("§6PURA ARENA §7X1 contra §e"+b.getName());b.sendMessage("§6PURA ARENA §7X1 contra §e"+a.getName());return true;}
+ private boolean start(Player a,Player b){if(!ready()||saved.containsKey(a.getUniqueId())||saved.containsKey(b.getUniqueId()))return false;ArenaManager.Arena arena=arenaManager.acquire();if(arena==null){a.sendMessage("§eTodas as arenas estao ocupadas.");b.sendMessage("§eTodas as arenas estao ocupadas.");return false;}queue.remove(a.getUniqueId());queue.remove(b.getUniqueId());activeArenas.put(a.getUniqueId(),arena);activeArenas.put(b.getUniqueId(),arena);saved.put(a.getUniqueId(),State.take(a));saved.put(b.getUniqueId(),State.take(b));persist();fights.put(a.getUniqueId(),b.getUniqueId());fights.put(b.getUniqueId(),a.getUniqueId());prepare(a,arena.spawnOne());prepare(b,arena.spawnTwo());give(a,kits.getOrDefault(a.getUniqueId(),"PvP"));give(b,kits.getOrDefault(b.getUniqueId(),"PvP"));a.sendMessage("§6PURA ARENA §7X1 contra §e"+b.getName());b.sendMessage("§6PURA ARENA §7X1 contra §e"+a.getName());return true;}
  private void prepare(Player p,Location l){p.closeInventory();p.getInventory().clear();p.getInventory().setArmorContents(new ItemStack[4]);p.getInventory().setItemInOffHand(null);p.setExp(0);p.setLevel(0);p.setFireTicks(0);p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());p.setFoodLevel(20);p.setSaturation(20);p.setGameMode(GameMode.SURVIVAL);p.teleport(l);}
  private void enchant(ItemStack item,String key,int level){Enchantment e=Registry.ENCHANTMENT.get(NamespacedKey.minecraft(key));if(e!=null)item.addUnsafeEnchantment(e,level);}
  private ItemStack gear(Material material,String... enchants){ItemStack item=new ItemStack(material);for(int n=0;n+1<enchants.length;n+=2)enchant(item,enchants[n],Integer.parseInt(enchants[n+1]));return item;}
@@ -54,6 +54,7 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
    case "Mace"->{
     commonPvP(p,false);
     add(i,Material.MACE,1,"density","5","wind_burst","3","unbreaking","3","mending","1");
+    add(i,Material.ELYTRA,1,"unbreaking","3","mending","1");add(i,Material.FIREWORK_ROCKET,64);
     add(i,Material.WIND_CHARGE,32);
    }
    case "Spear"->{
@@ -64,6 +65,7 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
    case "MaceSpear"->{
     commonPvP(p,true);
     add(i,Material.MACE,1,"density","5","wind_burst","3","unbreaking","3","mending","1");
+    add(i,Material.ELYTRA,1,"unbreaking","3","mending","1");add(i,Material.FIREWORK_ROCKET,64);
     Material spear=Material.matchMaterial("SPEAR");
     add(i,spear==null?Material.TRIDENT:spear,1,"lunge","3","sharpness","5","unbreaking","3","mending","1");
     add(i,Material.WIND_CHARGE,32);
