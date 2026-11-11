@@ -15,3 +15,7 @@ commands:
   arena:
     description: Estatisticas da arena
     usage: /arena top
+  spec:
+    description: Assistir a uma partida em andamento
+    usage: /spec [jogador|sair]
+    aliases: [spectate]
