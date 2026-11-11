@@ -1,0 +1,5 @@
+name: CabecasPvP
+version: '1.0.1'
+main: br.com.puraarena.cabecaspvp.CabecasPvP
+api-version: '26.3'
+description: Dropa a cabeca com a skin do jogador morto em PvP, assinada com o nome de quem o matou.
