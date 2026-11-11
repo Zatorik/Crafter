@@ -92,7 +92,7 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
    if(!loser.isOnline())return;loser.setGameMode(GameMode.SPECTATOR);loser.teleport(deathLocation);setEndItems(loser);
    loser.sendMessage("§cVoce perdeu. Continue assistindo ou escolha uma opcao na hotbar.");
    if(winner!=null&&winner.isOnline())winner.sendMessage("§e"+loser.getName()+" esta assistindo a partida.");
-   BukkitTask task=Bukkit.getScheduler().runTaskLater(this,()->finishPair(id,other),20L*30);
+   long spectatorSeconds=Math.max(5,getConfig().getLong("spectator-seconds",30));BukkitTask task=Bukkit.getScheduler().runTaskLater(this,()->finishPair(id,other),20L*spectatorSeconds);
    postTimers.put(id,task);postTimers.put(other,task);
   },1L);});
  }
