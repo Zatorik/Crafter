@@ -144,10 +144,12 @@ public final class ArenaManager {
     }
 
     public Arena acquire() {
-        for (Arena arena : arenas) {
-            if (!arena.busy) { clearEntities(arena); arena.busy = true; return arena; }
-        }
-        return null;
+        List<Arena> available = arenas.stream().filter(arena -> !arena.busy).toList();
+        if (available.isEmpty()) return null;
+        Arena selected = available.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(available.size()));
+        clearEntities(selected);
+        selected.busy = true;
+        return selected;
     }
     private void clearEntities(Arena arena) {
         for (Entity entity : arena.world.getNearbyEntities(arena.bounds)) if (!(entity instanceof Player)) entity.remove();
@@ -159,13 +161,20 @@ public final class ArenaManager {
         arena.busy = false;
     }
 
-    public boolean isArena(Location location) {
-        if (location == null || location.getWorld() == null) return false;
-        for (Arena arena : arenas) {
-            if (arena.world.equals(location.getWorld()) && arena.bounds.contains(
-                    location.getX(), location.getY(), location.getZ())) return true;
-        }
+    public boolean isArenaWorld(World world) {
+        if (world == null) return false;
+        for (Arena arena : arenas) if (arena.world.equals(world)) return true;
         return false;
+    }
+
+    public Arena arenaAt(Location location) {
+        if (location == null || location.getWorld() == null) return null;
+        for (Arena arena : arenas) if (arena.contains(location)) return arena;
+        return null;
+    }
+
+    public boolean isArena(Location location) {
+        return arenaAt(location) != null;
     }
 
     public static final class Arena {
@@ -182,6 +191,11 @@ public final class ArenaManager {
             this.number = number;
             this.bounds = new BoundingBox(centerX - HALF_SIZE, baseY - 1, centerZ - HALF_SIZE,
                     centerX + HALF_SIZE + 1, baseY + ARENA_HEIGHT + 1, centerZ + HALF_SIZE + 1);
+        }
+
+        public boolean contains(Location location) {
+            return location != null && world.equals(location.getWorld()) && bounds.contains(
+                    location.getX(), location.getY(), location.getZ());
         }
 
         public Location spawnOne() {
