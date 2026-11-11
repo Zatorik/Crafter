@@ -92,12 +92,6 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
         recording.record.frames.add(frame);
     }
 
-    private ItemStack[] cloneItems(ItemStack[] items) {
-        ItemStack[] copy = new ItemStack[items.length];
-        for (int i = 0; i < items.length; i++) copy[i] = cloneItem(items[i]);
-        return copy;
-    }
-
     private ItemStack cloneItem(ItemStack item) {
         return item == null ? null : item.clone();
     }
