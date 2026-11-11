@@ -162,8 +162,29 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
             sender.sendMessage("Apenas jogadores podem assistir replays.");
             return true;
         }
-        if (args.length > 0 && args[0].equalsIgnoreCase("sair")) {
-            stopPlayback(player.getUniqueId(), true);
+        if (args.length > 0) {
+            Playback playback = playbacks.get(player.getUniqueId());
+            switch (args[0].toLowerCase(Locale.ROOT)) {
+                case "sair" -> stopPlayback(player.getUniqueId(), true);
+                case "pausar" -> {
+                    if (playback == null) player.sendMessage("§cVoce nao esta assistindo um replay.");
+                    else { playback.paused = !playback.paused; player.sendMessage(playback.paused ? "§eReplay pausado." : "§aReplay continuando."); }
+                }
+                case "reiniciar" -> {
+                    if (playback == null) player.sendMessage("§cVoce nao esta assistindo um replay.");
+                    else { playback.index = 0; playback.accumulator = 0; player.sendMessage("§aReplay reiniciado."); }
+                }
+                case "camera" -> {
+                    if (playback == null) player.sendMessage("§cVoce nao esta assistindo um replay.");
+                    else { playback.cameraB = !playback.cameraB; player.setSpectatorTarget(playback.cameraB ? playback.b : playback.a); player.sendMessage("§bCamera: " + (playback.cameraB ? playback.record.nameB : playback.record.nameA)); }
+                }
+                case "velocidade" -> {
+                    if (playback == null) player.sendMessage("§cVoce nao esta assistindo um replay.");
+                    else if (args.length < 2 || !Set.of("0.5", "1", "2").contains(args[1])) player.sendMessage("§7Use /replay velocidade 0.5, 1 ou 2.");
+                    else { playback.speed = Double.parseDouble(args[1]); player.sendMessage("§aVelocidade: " + args[1] + "x"); }
+                }
+                default -> player.sendMessage("§7/replay | sair | pausar | reiniciar | camera | velocidade 0.5|1|2");
+            }
             return true;
         }
         openMenu(player);
@@ -291,11 +312,17 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
             stopPlayback(playback.viewer.getUniqueId(), true);
             return;
         }
-        ReplayFrame f = playback.record.frames.get(playback.index++);
-        moveGhost(playback.a, centerX - 3 + f.ax, 80 + f.ay, centerZ + f.az, f.ayaw, f.apitch, f.ahp);
-        moveGhost(playback.b, centerX + 3 + f.bx, 80 + f.by, centerZ + f.bz, f.byaw, f.bpitch, f.bhp);
-        if (f.aarmor != null) applyEquipment(playback.a, f.aarmor, f.ahand, f.aoff);
-        if (f.barmor != null) applyEquipment(playback.b, f.barmor, f.bhand, f.boff);
+        if (playback.paused) return;
+        playback.accumulator += playback.speed;
+        int steps = (int) playback.accumulator;
+        playback.accumulator -= steps;
+        for (int step = 0; step < steps && playback.index < playback.record.frames.size(); step++) {
+            ReplayFrame f = playback.record.frames.get(playback.index++);
+            moveGhost(playback.a, centerX - 3 + f.ax, 80 + f.ay, centerZ + f.az, f.ayaw, f.apitch, f.ahp);
+            moveGhost(playback.b, centerX + 3 + f.bx, 80 + f.by, centerZ + f.bz, f.byaw, f.bpitch, f.bhp);
+            if (f.aarmor != null) applyEquipment(playback.a, f.aarmor, f.ahand, f.aoff);
+            if (f.barmor != null) applyEquipment(playback.b, f.barmor, f.bhand, f.boff);
+        }
         if (playback.index % 100 == 0) playback.viewer.sendActionBar("§bReplay §7" + playback.index * SAMPLE_PERIOD / 20 + "s");
     }
 
@@ -327,7 +354,7 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
     @EventHandler
     public void quit(PlayerQuitEvent event) {
         UUID id = event.getPlayer().getUniqueId();
-        stopPlayback(id, false);
+        stopPlayback(id, true);
         menus.remove(id);
     }
 
@@ -338,7 +365,7 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return args.length == 1 ? List.of("sair") : Collections.emptyList();
+        return args.length == 1 ? List.of("sair", "pausar", "reiniciar", "camera", "velocidade") : args.length == 2 && args[0].equalsIgnoreCase("velocidade") ? List.of("0.5", "1", "2") : Collections.emptyList();
     }
 
     private static final class Recording {
@@ -353,6 +380,8 @@ public final class ReplayManager implements Listener, CommandExecutor, TabComple
         final ReplayRecord record;
         final ArmorStand a, b;
         int index;
+        double speed = 1.0, accumulator;
+        boolean paused, cameraB;
         BukkitTask task;
         Playback(Player viewer, ViewerState old, ReplayRecord record, ArmorStand a, ArmorStand b) {
             this.viewer = viewer; this.old = old; this.record = record; this.a = a; this.b = b;
