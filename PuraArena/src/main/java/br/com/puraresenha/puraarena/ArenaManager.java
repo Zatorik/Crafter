@@ -12,8 +12,8 @@ import java.io.File;
 
 public final class ArenaManager {
     private static final int HALF_SIZE = 22;
-    private static final int WALL_HEIGHT = 5;
-    private static final int LAYOUT_VERSION = 2;
+    private static final int WALL_HEIGHT = 128;
+    private static final int LAYOUT_VERSION = 3;
     private final JavaPlugin plugin;
     private final List<Arena> arenas = new ArrayList<>();
 
@@ -90,11 +90,10 @@ public final class ArenaManager {
             for (int z = minZ; z <= maxZ; z++) {
                 world.getBlockAt(x, baseY, z).setType(Material.POLISHED_DEEPSLATE, false);
                 boolean edge = x == minX || x == maxX || z == minZ || z == maxZ;
-                for (int y = baseY + 1; y <= baseY + WALL_HEIGHT; y++) {
-                    world.getBlockAt(x, y, z).setType(edge ? Material.BARRIER : Material.AIR, false);
-                }
-                for (int y = baseY + WALL_HEIGHT + 1; y <= baseY + 12; y++) {
-                    world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                if (edge) {
+                    for (int y = baseY + 1; y <= baseY + WALL_HEIGHT; y++) world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
+                } else {
+                    for (int y = baseY + 1; y <= baseY + 12; y++) world.getBlockAt(x, y, z).setType(Material.AIR, false);
                 }
             }
         }
@@ -117,21 +116,17 @@ public final class ArenaManager {
 
     public Arena acquire() {
         for (Arena arena : arenas) {
-            if (!arena.busy) {
-                arena.busy = true;
-                return arena;
-            }
+            if (!arena.busy) { clearEntities(arena); arena.busy = true; return arena; }
         }
         return null;
+    }
+    private void clearEntities(Arena arena) {
+        for (Entity entity : arena.world.getNearbyEntities(arena.bounds)) if (!(entity instanceof Player)) entity.remove();
     }
 
     public void release(Arena arena) {
         if (arena == null) return;
-        for (Entity entity : arena.world.getNearbyEntities(arena.bounds)) {
-            if (!(entity instanceof Player) && (entity instanceof Item || entity instanceof Projectile)) {
-                entity.remove();
-            }
-        }
+        clearEntities(arena);
         arena.busy = false;
     }
 
