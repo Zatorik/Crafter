@@ -19,3 +19,7 @@ commands:
     description: Assistir a uma partida em andamento
     usage: /spec [jogador|sair]
     aliases: [spectate]
+
+  replay:
+    description: Abrir o historico de replays do PuraArena
+    usage: /replay [sair]
