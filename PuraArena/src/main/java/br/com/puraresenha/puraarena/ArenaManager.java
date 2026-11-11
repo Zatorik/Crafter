@@ -8,6 +8,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.BoundingBox;
 import java.util.*;
+import java.io.File;
 
 public final class ArenaManager {
     private static final int HALF_SIZE = 12;
@@ -22,8 +23,8 @@ public final class ArenaManager {
     public void prepare() {
         String worldName = plugin.getConfig().getString("arena.world", "puraarena");
         World world = Bukkit.getWorld(worldName);
-        boolean newWorld = world == null;
-        if (newWorld) {
+        boolean worldFolderExists = new File(Bukkit.getWorldContainer(), worldName).isDirectory();
+        if (world == null) {
             WorldCreator creator = new WorldCreator(worldName);
             creator.environment(World.Environment.NORMAL);
             creator.type(WorldType.FLAT);
@@ -43,12 +44,14 @@ public final class ArenaManager {
         int startZ = plugin.getConfig().getInt("arena.center-z", 0);
 
         boolean generated = plugin.getConfig().getBoolean("arena.generated", false);
-        if (newWorld || !generated) {
+        int generatedCount = plugin.getConfig().getInt("arena.generated-pool-size", 0);
+        if (!worldFolderExists || !generated || generatedCount < count) {
             for (int i = 0; i < count; i++) {
                 int centerX = startX + i * spacing;
                 buildArena(world, centerX, startZ, baseY);
             }
             plugin.getConfig().set("arena.generated", true);
+            plugin.getConfig().set("arena.generated-pool-size", count);
             plugin.saveConfig();
             plugin.getLogger().info("Preparadas " + count + " arenas reutilizaveis no mundo " + worldName + ".");
         }
