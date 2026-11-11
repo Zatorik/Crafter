@@ -108,13 +108,21 @@ public final class ArenaManager {
         int roofY = baseY + ARENA_HEIGHT;
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
-                world.getBlockAt(x, baseY, z).setType(Material.POLISHED_DEEPSLATE, false);
+                if (world.getBlockAt(x, baseY, z).getType() != Material.POLISHED_DEEPSLATE)
+                    world.getBlockAt(x, baseY, z).setType(Material.POLISHED_DEEPSLATE, false);
                 boolean edge = x == minX || x == maxX || z == minZ || z == maxZ;
                 if (edge) {
-                    for (int y = baseY + 1; y <= roofY; y++) world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
+                    for (int y = baseY + 1; y <= roofY; y++) {
+                        if (world.getBlockAt(x, y, z).getType() != Material.BARRIER)
+                            world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
+                    }
                 } else {
-                    for (int y = baseY + 1; y < roofY; y++) world.getBlockAt(x, y, z).setType(Material.AIR, false);
-                    world.getBlockAt(x, roofY, z).setType(Material.BARRIER, false);
+                    for (int y = baseY + 1; y < roofY; y++) {
+                        if (world.getBlockAt(x, y, z).getType() != Material.AIR)
+                            world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                    }
+                    if (world.getBlockAt(x, roofY, z).getType() != Material.BARRIER)
+                        world.getBlockAt(x, roofY, z).setType(Material.BARRIER, false);
                 }
             }
         }
