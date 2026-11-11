@@ -21,10 +21,64 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
  private void prepare(Player p,Location l){p.closeInventory();p.getInventory().clear();p.getInventory().setArmorContents(new ItemStack[4]);p.getInventory().setItemInOffHand(null);p.setExp(0);p.setLevel(0);p.setFireTicks(0);p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());p.setFoodLevel(20);p.setSaturation(20);p.setGameMode(GameMode.SURVIVAL);p.teleport(l);}
  private void enchant(ItemStack item,String key,int level){Enchantment e=Registry.ENCHANTMENT.get(NamespacedKey.minecraft(key));if(e!=null)item.addUnsafeEnchantment(e,level);}
  private ItemStack gear(Material material,String... enchants){ItemStack item=new ItemStack(material);for(int n=0;n+1<enchants.length;n+=2)enchant(item,enchants[n],Integer.parseInt(enchants[n+1]));return item;}
- private void armor(PlayerInventory i,Material m){String s=m==Material.IRON_INGOT?"IRON":m.name();ItemStack helmet=gear(Material.valueOf(s+"_HELMET"),"protection","4","unbreaking","3","mending","1","respiration","3","aqua_affinity","1");ItemStack chest=gear(Material.valueOf(s+"_CHESTPLATE"),"protection","4","unbreaking","3","mending","1");ItemStack legs=gear(Material.valueOf(s+"_LEGGINGS"),"protection","4","unbreaking","3","mending","1");ItemStack boots=gear(Material.valueOf(s+"_BOOTS"),"protection","4","unbreaking","3","mending","1","feather_falling","4","depth_strider","3");i.setHelmet(helmet);i.setChestplate(chest);i.setLeggings(legs);i.setBoots(boots);}
+ private void armor(PlayerInventory i,String prefix){
+  ItemStack helmet=gear(Material.valueOf(prefix+"_HELMET"),"protection","4","unbreaking","3","mending","1","respiration","3","aqua_affinity","1");
+  ItemStack chest=gear(Material.valueOf(prefix+"_CHESTPLATE"),"protection","4","unbreaking","3","mending","1");
+  ItemStack legs=gear(Material.valueOf(prefix+"_LEGGINGS"),"protection","4","unbreaking","3","mending","1");
+  ItemStack boots=gear(Material.valueOf(prefix+"_BOOTS"),"protection","4","unbreaking","3","mending","1","feather_falling","4","depth_strider","3");
+  i.setHelmet(helmet);i.setChestplate(chest);i.setLeggings(legs);i.setBoots(boots);
+ }
  private void add(PlayerInventory i,Material m,int amount,String... enchants){ItemStack item=gear(m,enchants);item.setAmount(amount);i.addItem(item);}
- private void basePvP(Player p){PlayerInventory i=p.getInventory();armor(i,Material.DIAMOND);add(i,Material.DIAMOND_SWORD,1,"sharpness","5","unbreaking","3","fire_aspect","2","looting","3");add(i,Material.DIAMOND_AXE,1,"sharpness","5","unbreaking","3");add(i,Material.BOW,1,"power","5","unbreaking","3","flame","1","infinity","1");add(i,Material.SHIELD,1,"unbreaking","3","mending","1");add(i,Material.ENDER_PEARL,8);add(i,Material.GOLDEN_APPLE,8);add(i,Material.WATER_BUCKET,1);add(i,Material.COBBLESTONE,64);add(i,Material.COOKED_BEEF,32);add(i,Material.ARROW,1); }
- private void give(Player p,String k){PlayerInventory i=p.getInventory();switch(k){case "Mace"->{armor(i,Material.DIAMOND);add(i,Material.MACE,1,"density","5","wind_burst","3","unbreaking","3","mending","1");add(i,Material.WIND_CHARGE,16);add(i,Material.GOLDEN_APPLE,8);add(i,Material.ENDER_PEARL,8);add(i,Material.WATER_BUCKET,1);add(i,Material.COOKED_BEEF,32);add(i,Material.COBBLESTONE,64);}case "Spear"->{armor(i,Material.DIAMOND);Material spear=Material.matchMaterial("SPEAR");add(i,spear==null?Material.TRIDENT:spear,1,"lunge","3","sharpness","5","unbreaking","3","mending","1");add(i,Material.SHIELD,1,"unbreaking","3","mending","1");add(i,Material.ENDER_PEARL,8);add(i,Material.GOLDEN_APPLE,8);add(i,Material.WATER_BUCKET,1);add(i,Material.COOKED_BEEF,32);add(i,Material.COBBLESTONE,64);}case "MaceSpear"->{armor(i,Material.DIAMOND);add(i,Material.MACE,1,"density","5","wind_burst","3","unbreaking","3","mending","1");Material spear=Material.matchMaterial("SPEAR");add(i,spear==null?Material.TRIDENT:spear,1,"lunge","3","sharpness","5","unbreaking","3","mending","1");add(i,Material.DIAMOND_SWORD,1,"sharpness","5","unbreaking","3");add(i,Material.SHIELD,1,"unbreaking","3","mending","1");add(i,Material.WIND_CHARGE,16);add(i,Material.ENDER_PEARL,8);add(i,Material.GOLDEN_APPLE,8);add(i,Material.WATER_BUCKET,1);add(i,Material.COOKED_BEEF,32);add(i,Material.COBBLESTONE,64);}case "Classico"->{armor(i,Material.IRON_INGOT);add(i,Material.IRON_SWORD,1,"sharpness","4","unbreaking","3");add(i,Material.SHIELD,1,"unbreaking","3");add(i,Material.GOLDEN_APPLE,4);add(i,Material.COOKED_BEEF,24);}default->basePvP(p);}}
+ private void potion(PlayerInventory i,org.bukkit.potion.PotionType type,int amount){
+  ItemStack item=new ItemStack(Material.POTION,amount);
+  org.bukkit.inventory.meta.PotionMeta meta=(org.bukkit.inventory.meta.PotionMeta)item.getItemMeta();
+  meta.setBasePotionType(type);item.setItemMeta(meta);i.addItem(item);
+ }
+ private void commonPvP(Player p,boolean bow){
+  PlayerInventory i=p.getInventory();armor(i,"NETHERITE");
+  add(i,Material.DIAMOND_SWORD,1,"sharpness","5","unbreaking","3","fire_aspect","2");
+  add(i,Material.DIAMOND_AXE,1,"sharpness","5","unbreaking","3");
+  if(bow){add(i,Material.BOW,1,"power","5","unbreaking","3","flame","1");add(i,Material.ARROW,64);}
+  add(i,Material.SHIELD,1,"unbreaking","3","mending","1");
+  add(i,Material.ENDER_PEARL,16);add(i,Material.GOLDEN_APPLE,16);add(i,Material.ENCHANTED_GOLDEN_APPLE,2);
+  add(i,Material.WATER_BUCKET,1);add(i,Material.COBWEB,16);add(i,Material.COBBLESTONE,64);add(i,Material.COOKED_BEEF,32);
+  potion(i,org.bukkit.potion.PotionType.STRENGTH,2);
+  potion(i,org.bukkit.potion.PotionType.SWIFTNESS,2);
+  potion(i,org.bukkit.potion.PotionType.FIRE_RESISTANCE,1);
+  i.setItemInOffHand(new ItemStack(Material.TOTEM_OF_UNDYING));
+ }
+ private void basePvP(Player p){commonPvP(p,true);}
+ private void give(Player p,String k){
+  PlayerInventory i=p.getInventory();
+  switch(k){
+   case "Mace"->{
+    commonPvP(p,false);
+    add(i,Material.MACE,1,"density","5","wind_burst","3","unbreaking","3","mending","1");
+    add(i,Material.WIND_CHARGE,32);
+   }
+   case "Spear"->{
+    commonPvP(p,true);
+    Material spear=Material.matchMaterial("SPEAR");
+    add(i,spear==null?Material.TRIDENT:spear,1,"lunge","3","sharpness","5","unbreaking","3","mending","1");
+   }
+   case "MaceSpear"->{
+    commonPvP(p,true);
+    add(i,Material.MACE,1,"density","5","wind_burst","3","unbreaking","3","mending","1");
+    Material spear=Material.matchMaterial("SPEAR");
+    add(i,spear==null?Material.TRIDENT:spear,1,"lunge","3","sharpness","5","unbreaking","3","mending","1");
+    add(i,Material.WIND_CHARGE,32);
+   }
+   case "Classico"->{
+    armor(i,"IRON");
+    add(i,Material.IRON_SWORD,1,"sharpness","4","unbreaking","3");
+    add(i,Material.IRON_AXE,1,"sharpness","3","unbreaking","3");
+    add(i,Material.SHIELD,1,"unbreaking","3");
+    add(i,Material.ENDER_PEARL,4);add(i,Material.GOLDEN_APPLE,8);
+    add(i,Material.COOKED_BEEF,24);add(i,Material.WATER_BUCKET,1);
+   }
+   default->commonPvP(p,true);
+  }
+ }
  @EventHandler public void death(PlayerDeathEvent e){Player loser=e.getEntity();UUID id=loser.getUniqueId(),other=fights.get(id);if(other==null)return;e.getDrops().clear();e.setDroppedExp(0);Player winner=Bukkit.getPlayer(other);if(winner!=null){wins.merge(other,1,Integer::sum);winner.sendMessage("§aVoce venceu contra "+loser.getName()+"!");}loser.sendMessage("§cVoce perdeu. Inventario original sera restaurado.");Bukkit.getScheduler().runTask(this,()->{loser.spigot().respawn();Bukkit.getScheduler().runTaskLater(this,()->{if(loser.isOnline())loser.setGameMode(GameMode.SPECTATOR);long wait=20L*getConfig().getLong("spectator-seconds",5);Bukkit.getScheduler().runTaskLater(this,()->{if(loser.isOnline())restore(loser);if(winner!=null&&winner.isOnline())restore(winner);fights.remove(id);fights.remove(other);releaseArena(id,other);},wait);},1L);});}
  private void restore(Player p){State s=saved.remove(p.getUniqueId());if(s!=null)s.putBack(p);persist();}
  private void releaseArena(UUID a,UUID b){ArenaManager.Arena arena=activeArenas.remove(a);ArenaManager.Arena other=activeArenas.remove(b);if(arena==null)arena=other;if(arena!=null)arenaManager.release(arena);tryStartQueue();}
