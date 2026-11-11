@@ -1,0 +1,17 @@
+name: PuraArena
+version: 1.0.0
+main: br.com.puraresenha.puraarena.PuraArenaPlugin
+api-version: '26.3'
+author: Pura-Resenha
+description: Gladiador e X1 com kits temporarios e protecao de inventario.
+commands:
+  gladiador:
+    description: Menu e fila do Gladiador
+    usage: /gladiador [entrar|sair]
+    aliases: [glad]
+  x1:
+    description: Desafiar jogador
+    usage: /x1 <jogador|aceitar|recusar|cancelar>
+  arena:
+    description: Estatisticas da arena
+    usage: /arena top
