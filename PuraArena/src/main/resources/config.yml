@@ -1,4 +1,5 @@
 # Mundo separado: o plugin cria e prepara as arenas uma vez e depois reutiliza.
+# Build de verificacao solicitado em 2026-11-11.
 arena:
   world: puraarena
   pool-size: 4
