@@ -11,8 +11,9 @@ import java.util.*;
 import java.io.File;
 
 public final class ArenaManager {
-    private static final int HALF_SIZE = 12;
-    private static final int WALL_HEIGHT = 7;
+    private static final int HALF_SIZE = 22;
+    private static final int WALL_HEIGHT = 5;
+    private static final int LAYOUT_VERSION = 2;
     private final JavaPlugin plugin;
     private final List<Arena> arenas = new ArrayList<>();
 
@@ -37,7 +38,7 @@ public final class ArenaManager {
         }
 
         int count = Math.max(1, Math.min(12, plugin.getConfig().getInt("arena.pool-size", 4)));
-        int spacing = Math.max(40, plugin.getConfig().getInt("arena.spacing", 48));
+        int spacing = Math.max(56, plugin.getConfig().getInt("arena.spacing", 64));
         int baseY = Math.max(world.getMinHeight() + 5,
                 Math.min(world.getMaxHeight() - 16, plugin.getConfig().getInt("arena.base-y", 80)));
         int startX = plugin.getConfig().getInt("arena.center-x", 0);
@@ -45,13 +46,15 @@ public final class ArenaManager {
 
         boolean generated = plugin.getConfig().getBoolean("arena.generated", false);
         int generatedCount = plugin.getConfig().getInt("arena.generated-pool-size", 0);
-        if (!worldFolderExists || !generated || generatedCount < count) {
+        int layoutVersion = plugin.getConfig().getInt("arena.generated-layout-version", 0);
+        if (!worldFolderExists || !generated || generatedCount < count || layoutVersion < LAYOUT_VERSION) {
             for (int i = 0; i < count; i++) {
                 int centerX = startX + i * spacing;
                 buildArena(world, centerX, startZ, baseY);
             }
             plugin.getConfig().set("arena.generated", true);
             plugin.getConfig().set("arena.generated-pool-size", count);
+            plugin.getConfig().set("arena.generated-layout-version", LAYOUT_VERSION);
             plugin.saveConfig();
             plugin.getLogger().info("Preparadas " + count + " arenas reutilizaveis no mundo " + worldName + ".");
         }
@@ -82,23 +85,22 @@ public final class ArenaManager {
         int minZ = centerZ - HALF_SIZE;
         int maxZ = centerZ + HALF_SIZE;
 
+        // Arena ampla, totalmente aberta ao ceu. A borda invisivel impede que os jogadores caiam.
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 world.getBlockAt(x, baseY, z).setType(Material.POLISHED_DEEPSLATE, false);
+                boolean edge = x == minX || x == maxX || z == minZ || z == maxZ;
                 for (int y = baseY + 1; y <= baseY + WALL_HEIGHT; y++) {
-                    boolean edge = x == minX || x == maxX || z == minZ || z == maxZ;
-                    world.getBlockAt(x, y, z).setType(edge ? Material.GLASS : Material.AIR, false);
+                    world.getBlockAt(x, y, z).setType(edge ? Material.BARRIER : Material.AIR, false);
                 }
-                world.getBlockAt(x, baseY + WALL_HEIGHT + 1, z).setType(Material.AIR, false);
+                for (int y = baseY + WALL_HEIGHT + 1; y <= baseY + 12; y++) {
+                    world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                }
             }
         }
 
-        for (int y = baseY + 1; y <= baseY + WALL_HEIGHT; y++) {
-            for (int[] corner : new int[][]{{minX,minZ},{minX,maxZ},{maxX,minZ},{maxX,maxZ}}) {
-                world.getBlockAt(corner[0], y, corner[1]).setType(Material.POLISHED_BLACKSTONE_BRICKS, false);
-            }
-        }
-        for (int[] marker : new int[][]{{centerX - 6,centerZ},{centerX + 6,centerZ}}) {
+        // Marcadores discretos no chao para identificar os pontos de spawn.
+        for (int[] marker : new int[][]{{centerX - 10,centerZ},{centerX + 10,centerZ}}) {
             world.getBlockAt(marker[0], baseY, marker[1]).setType(Material.SEA_LANTERN, false);
         }
     }
@@ -155,7 +157,7 @@ public final class ArenaManager {
             this.baseY = baseY;
             this.number = number;
             this.bounds = new BoundingBox(centerX - HALF_SIZE, baseY - 1, centerZ - HALF_SIZE,
-                    centerX + HALF_SIZE + 1, baseY + WALL_HEIGHT + 3, centerZ + HALF_SIZE + 1);
+                    centerX + HALF_SIZE + 1, baseY + 128, centerZ + HALF_SIZE + 1);
         }
 
         public Location spawnOne() {
