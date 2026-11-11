@@ -11,4 +11,4 @@ arena:
   generated: false
 
 invitation-timeout-seconds: 60
-spectator-seconds: 5
+spectator-seconds: 30
