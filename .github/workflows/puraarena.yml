@@ -2,7 +2,7 @@ name: Build PuraArena
 on:
   push:
     paths: ['PuraArena/**', '.github/workflows/puraarena.yml']
-    branches: [main]
+    branches: [main, 'develop/puraarena-complete']
   workflow_dispatch:
 jobs:
   build:
