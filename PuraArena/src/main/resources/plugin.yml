@@ -19,3 +19,6 @@ commands:
     description: Assistir a uma partida em andamento
     usage: /spec [jogador|sair]
     aliases: [spectate]
+  l:
+    description: Desistir da partida atual e conceder a vitoria ao adversario
+    usage: /l
