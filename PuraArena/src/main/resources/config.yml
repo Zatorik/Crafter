@@ -1,12 +1,13 @@
-# Mundo separado: o plugin cria e prepara as arenas uma vez e depois reutiliza.
+# Mundo separado: arenas ampliadas, abertas ao ceu e reutilizadas entre partidas.
 # Build de verificacao solicitado em 2026-11-11.
 arena:
   world: puraarena
   pool-size: 4
-  spacing: 48
+  spacing: 64
   center-x: 0
   center-z: 0
   base-y: 80
+  generated-layout-version: 2
   generated: false
 
 invitation-timeout-seconds: 60
