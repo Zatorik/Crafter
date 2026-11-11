@@ -12,8 +12,8 @@ import java.io.File;
 
 public final class ArenaManager {
     private static final int HALF_SIZE = 22;
-    private static final int WALL_HEIGHT = 128;
-    private static final int LAYOUT_VERSION = 4;
+    private static final int ARENA_HEIGHT = 96;
+    private static final int LAYOUT_VERSION = 5;
     private final JavaPlugin plugin;
     private final List<Arena> arenas = new ArrayList<>();
 
@@ -22,7 +22,7 @@ public final class ArenaManager {
     }
 
     public void prepare() {
-        String worldName = plugin.getConfig().getString("arena.world", "puraarena");
+        String worldName = plugin.getConfig().getString("arena.world", "puraarena_world");
         World world = Bukkit.getWorld(worldName);
         boolean worldFolderExists = new File(Bukkit.getWorldContainer(), worldName).isDirectory();
         if (world == null) {
@@ -37,10 +37,17 @@ public final class ArenaManager {
             return;
         }
 
-        int count = Math.max(1, Math.min(12, plugin.getConfig().getInt("arena.pool-size", 4)));
+        int count = Math.max(1, Math.min(12, plugin.getConfig().getInt("arena.pool-size", 6)));
         int spacing = Math.max(56, plugin.getConfig().getInt("arena.spacing", 64));
         int baseY = Math.max(world.getMinHeight() + 5,
-                Math.min(world.getMaxHeight() - 16, plugin.getConfig().getInt("arena.base-y", 80)));
+                Math.min(world.getMaxHeight() - ARENA_HEIGHT - 5, plugin.getConfig().getInt("arena.base-y", 160)));
+        world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        world.setDifficulty(Difficulty.PEACEFUL);
+        world.setStorm(false);
+        world.setThundering(false);
+        world.setTime(6000L);
+        world.setSpawnFlags(false, false);
+
         int startX = plugin.getConfig().getInt("arena.center-x", 0);
         int startZ = plugin.getConfig().getInt("arena.center-z", 0);
 
@@ -85,15 +92,17 @@ public final class ArenaManager {
         int minZ = centerZ - HALF_SIZE;
         int maxZ = centerZ + HALF_SIZE;
 
-        // Arena ampla, totalmente aberta ao ceu. A borda invisivel impede que os jogadores caiam.
+        // Arena fechada em um mundo dedicado e vazio: sem cavernas, buracos ou rota de fuga pela elytra.
+        int roofY = baseY + ARENA_HEIGHT;
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 world.getBlockAt(x, baseY, z).setType(Material.POLISHED_DEEPSLATE, false);
                 boolean edge = x == minX || x == maxX || z == minZ || z == maxZ;
                 if (edge) {
-                    for (int y = baseY + 1; y < world.getMaxHeight(); y++) world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
+                    for (int y = baseY + 1; y <= roofY; y++) world.getBlockAt(x, y, z).setType(Material.BARRIER, false);
                 } else {
-                    for (int y = baseY + 1; y <= baseY + 12; y++) world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                    for (int y = baseY + 1; y < roofY; y++) world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                    world.getBlockAt(x, roofY, z).setType(Material.BARRIER, false);
                 }
             }
         }
@@ -152,7 +161,7 @@ public final class ArenaManager {
             this.baseY = baseY;
             this.number = number;
             this.bounds = new BoundingBox(centerX - HALF_SIZE, baseY - 1, centerZ - HALF_SIZE,
-                    centerX + HALF_SIZE + 1, baseY + 128, centerZ + HALF_SIZE + 1);
+                    centerX + HALF_SIZE + 1, baseY + ARENA_HEIGHT + 1, centerZ + HALF_SIZE + 1);
         }
 
         public Location spawnOne() {
