@@ -198,6 +198,16 @@ public final class ArenaManager {
                     location.getX(), location.getY(), location.getZ());
         }
 
+        public boolean containsInterior(Location location) {
+            return contains(location)
+                    && location.getX() > centerX - HALF_SIZE + 1
+                    && location.getX() < centerX + HALF_SIZE
+                    && location.getZ() > centerZ - HALF_SIZE + 1
+                    && location.getZ() < centerZ + HALF_SIZE
+                    && location.getY() > baseY
+                    && location.getY() < baseY + ARENA_HEIGHT - 1;
+        }
+
         public Location spawnOne() {
             return new Location(world, centerX - 6.5, baseY + 1, centerZ + 0.5, -90f, 0f);
         }
