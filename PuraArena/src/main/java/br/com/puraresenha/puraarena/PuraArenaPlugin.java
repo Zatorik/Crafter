@@ -131,6 +131,13 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
  }
  }
  @EventHandler public void join(PlayerJoinEvent e){Bukkit.getScheduler().runTaskLater(this,()->restore(e.getPlayer()),1L);}
+ @EventHandler(priority=EventPriority.HIGHEST) public void protectArenaWorldEntry(PlayerChangedWorldEvent e){
+  Player p=e.getPlayer();
+  if(arenaManager==null||!arenaManager.isArenaWorld(e.getTo()))return;
+  if(saved.containsKey(p.getUniqueId())||spectatorStates.containsKey(p.getUniqueId()))return;
+  World fallback=Bukkit.getWorlds().stream().filter(w->!arenaManager.isArenaWorld(w)).findFirst().orElse(null);
+  if(fallback!=null)Bukkit.getScheduler().runTask(this,()->{if(p.isOnline()&&arenaManager.isArenaWorld(p.getWorld()))p.teleport(fallback.getSpawnLocation());});
+ }
  @EventHandler public void quitSpectator(PlayerQuitEvent e){UUID id=e.getPlayer().getUniqueId();State st=spectatorStates.remove(id);spectating.remove(id);if(st!=null){saved.put(id,st);persist();}}
  @EventHandler public void arenaBreak(org.bukkit.event.block.BlockBreakEvent e){if(arenaManager==null||!arenaManager.isArenaWorld(e.getBlock().getWorld()))return;boolean fighter=fights.containsKey(e.getPlayer().getUniqueId())&&!postMatch.contains(e.getPlayer().getUniqueId());if(!fighter||!arenaManager.isArena(e.getBlock().getLocation())||e.getBlock().getType()!=Material.COBWEB)e.setCancelled(true);}
  @EventHandler public void arenaPlace(org.bukkit.event.block.BlockPlaceEvent e){if(arenaManager==null||!arenaManager.isArenaWorld(e.getBlock().getWorld()))return;boolean fighter=fights.containsKey(e.getPlayer().getUniqueId())&&!postMatch.contains(e.getPlayer().getUniqueId());if(!fighter||!arenaManager.isArena(e.getBlockPlaced().getLocation())||e.getBlockPlaced().getType()!=Material.COBWEB)e.setCancelled(true);}
