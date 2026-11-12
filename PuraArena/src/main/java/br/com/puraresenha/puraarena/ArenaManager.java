@@ -13,7 +13,7 @@ import java.io.File;
 public final class ArenaManager {
     private static final int HALF_SIZE = 22;
     private static final int ARENA_HEIGHT = 96;
-    private static final int LAYOUT_VERSION = 5;
+    private static final int LAYOUT_VERSION = 6;
     private final JavaPlugin plugin;
     private final List<Arena> arenas = new ArrayList<>();
 
@@ -22,12 +22,18 @@ public final class ArenaManager {
     }
 
     public void prepare() {
-        String configuredWorld = plugin.getConfig().getString("arena.world", "puraarena_world");
-        if (configuredWorld == null || configuredWorld.equalsIgnoreCase("puraarena")) {
-            plugin.getConfig().set("arena.world", "puraarena_world");
-            plugin.getConfig().set("arena.pool-size", 6);
-            plugin.getConfig().set("arena.base-y", 160);
+        // Use sempre um mundo exclusivo novo. Nunca construir arenas no mundo principal/spawn.
+        String configuredWorld = plugin.getConfig().getString("arena.world", "puraarena_instances");
+        String primaryWorld = Bukkit.getWorlds().isEmpty() ? null : Bukkit.getWorlds().get(0).getName();
+        if (configuredWorld == null || configuredWorld.isBlank()
+                || configuredWorld.equalsIgnoreCase(primaryWorld)
+                || !configuredWorld.equalsIgnoreCase("puraarena_instances")) {
+            configuredWorld = "puraarena_instances";
+            plugin.getConfig().set("arena.world", configuredWorld);
             plugin.getConfig().set("arena.generated", false);
+            plugin.getConfig().set("arena.generated-pool-size", 0);
+            plugin.getConfig().set("arena.generated-layout-version", 0);
+            plugin.getConfig().set("arena.base-y", 200);
             plugin.saveConfig();
         }
         if (plugin.getConfig().getInt("arena.pool-size", 6) < 6) {
@@ -52,9 +58,9 @@ public final class ArenaManager {
         int count = Math.max(6, Math.min(12, plugin.getConfig().getInt("arena.pool-size", 6)));
         int spacing = Math.max(56, plugin.getConfig().getInt("arena.spacing", 64));
         int baseY = Math.max(world.getMinHeight() + 5,
-                Math.min(world.getMaxHeight() - ARENA_HEIGHT - 5, plugin.getConfig().getInt("arena.base-y", 160)));
+                Math.min(world.getMaxHeight() - ARENA_HEIGHT - 5, plugin.getConfig().getInt("arena.base-y", 200)));
         world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-        world.setDifficulty(Difficulty.PEACEFUL);
+        world.setDifficulty(Difficulty.NORMAL);
         world.setStorm(false);
         world.setThundering(false);
         world.setTime(6000L);
