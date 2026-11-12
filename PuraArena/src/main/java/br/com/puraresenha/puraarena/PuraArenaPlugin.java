@@ -133,7 +133,7 @@ public final class PuraArenaPlugin extends JavaPlugin implements Listener,Comman
  @EventHandler public void join(PlayerJoinEvent e){Bukkit.getScheduler().runTaskLater(this,()->restore(e.getPlayer()),1L);}
  @EventHandler(priority=EventPriority.HIGHEST) public void protectArenaWorldEntry(PlayerChangedWorldEvent e){
   Player p=e.getPlayer();
-  if(arenaManager==null||!arenaManager.isArenaWorld(e.getTo()))return;
+  if(arenaManager==null||!arenaManager.isArenaWorld(p.getWorld()))return;
   if(saved.containsKey(p.getUniqueId())||spectatorStates.containsKey(p.getUniqueId()))return;
   World fallback=Bukkit.getWorlds().stream().filter(w->!arenaManager.isArenaWorld(w)).findFirst().orElse(null);
   if(fallback!=null)Bukkit.getScheduler().runTask(this,()->{if(p.isOnline()&&arenaManager.isArenaWorld(p.getWorld()))p.teleport(fallback.getSpawnLocation());});
