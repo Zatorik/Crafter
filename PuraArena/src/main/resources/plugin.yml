@@ -3,7 +3,7 @@ version: 1.0.0
 main: br.com.puraresenha.puraarena.PuraArenaPlugin
 api-version: '26.3'
 author: Pura-Resenha
-description: Gladiador e X1 com kits temporarios e protecao de inventario.
+description: Arenas PvP, Gladiador, X1, kits e restauracao de jogadores.
 commands:
   gladiador:
     description: Menu e fila do Gladiador
@@ -19,3 +19,6 @@ commands:
     description: Assistir a uma partida em andamento
     usage: /spec [jogador|sair]
     aliases: [spectate]
+  l:
+    description: Desistir da partida atual e conceder a vitoria ao adversario
+    usage: /l
